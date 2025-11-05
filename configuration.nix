@@ -103,12 +103,17 @@ in
     enable32Bit = true;
     extraPackages = with pkgs; [
         intel-compute-runtime
-	driversi686Linux.intel-media-driver
-        intel-vaapi-driver
+	      intel-media-driver
         intel-graphics-compiler
+	      libvdpau-va-gl
     ];
   };
-  
+
+  # override intel-vaapi for intel-media-driver
+  nixpkgs.config.packageOverrides = pkgs: {
+    intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
+  };
+
   hardware.openrazer.enable = true;
   zramSwap.enable = true;
 
@@ -195,9 +200,10 @@ in
 
   # environment variable fixes
   environment.sessionVariables = {
-	VDPAU_DRIVER = "va_gl";
-	GSK_RENDERER = "gl";
-	MESA_SHADER_CACHE_MAX_SIZE = "12G";
+	  VDPAU_DRIVER = "va_gl";
+	  GSK_RENDERER = "gl";
+	  MESA_SHADER_CACHE_MAX_SIZE = "12G";
+	  LIBVA_DRIVER_NAME = "iHD";
   };
 
   # other performance stuff
