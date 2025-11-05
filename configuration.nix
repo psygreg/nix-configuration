@@ -103,9 +103,9 @@ in
     enable32Bit = true;
     extraPackages = with pkgs; [
         intel-compute-runtime
-	      intel-media-driver
+	intel-media-driver
         intel-graphics-compiler
-	      libvdpau-va-gl
+	libvdpau-va-gl
     ];
   };
 
@@ -194,16 +194,27 @@ in
 
   # nix management automations
   nix.settings.auto-optimise-store = true;
-  nix.gc.automatic = true;
-  nix.gc.dates = "weekly";
-  system.autoUpgrade.enable = true;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+  system.autoUpgrade = {
+    enable = true;
+    flags = [
+      "--print-build-logs"
+    ];
+    dates = "11:30";
+    randomizedDelaySec = "45min";
+    allowReboot = false;  # Set to true if you want automatic reboots
+  };
 
   # environment variable fixes
   environment.sessionVariables = {
-	  VDPAU_DRIVER = "va_gl";
-	  GSK_RENDERER = "gl";
-	  MESA_SHADER_CACHE_MAX_SIZE = "12G";
-	  LIBVA_DRIVER_NAME = "iHD";
+	VDPAU_DRIVER = "va_gl";
+	GSK_RENDERER = "gl";
+	MESA_SHADER_CACHE_MAX_SIZE = "12G";
+	LIBVA_DRIVER_NAME = "iHD";
   };
 
   # other performance stuff
