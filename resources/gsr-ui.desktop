@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=GPU Screen Recorder (on arch)
+GenericName=Terminal entering Arch
+Comment=GSR-UI on Arch
+Categories=Distrobox;System;Utility
+Exec=/nix/store/2cf3zb63rndxrlhn72mic87rshshbwmz-distrobox-1.8.1.2/bin/distrobox enter  arch -- gsr-ui
+Icon=/home/psygreg/.local/share/icons/distrobox/arch.png
+Keywords=distrobox;
+NoDisplay=false
+Terminal=false
+TryExec=/nix/store/2cf3zb63rndxrlhn72mic87rshshbwmz-distrobox-1.8.1.2/bin/distrobox
+Type=Application
