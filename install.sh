@@ -19,8 +19,8 @@ distrobox enter fedora -- bash -c "
 # arch image: ghcr.io/ublue-os/arch-toolbox
 distrobox enter arch -- bash -c "
     sudo pacman -Syu --noconfirm \
-    sudo pacman -S --noconfirm prismlauncher base-devel \
-    paru -S --skipreview --noconfirm vintagestory heroic-games-launcher-bin gpu-screen-recorder-ui obs-studio-browser qt6-wayland intel-media-sdk vpl-gpu-rt \
+    sudo pacman -S --noconfirm prismlauncher base-devel intel-media-sdk vpl-gpu-rt qt6-wayland \
+    paru -S --skipreview --noconfirm vintagestory heroic-games-launcher-bin gpu-screen-recorder-ui obs-studio-browser \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
 # set up GSR autostart
