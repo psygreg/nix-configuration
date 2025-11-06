@@ -20,7 +20,7 @@ distrobox enter fedora -- bash -c "
 distrobox enter arch -- bash -c "
     sudo pacman -Syu --noconfirm \
     sudo pacman -S --noconfirm prismlauncher base-devel \
-    paru -S --skipreview --noconfirm vintagestory heroic-games-launcher-bin gpu-screen-recorder-ui obs-studio-browser qt6-wayland \
+    paru -S --skipreview --noconfirm vintagestory heroic-games-launcher-bin gpu-screen-recorder-ui obs-studio-browser qt6-wayland intel-media-sdk vpl-gpu-rt \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
 # set up GSR autostart
