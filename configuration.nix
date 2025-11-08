@@ -201,9 +201,6 @@ in
   };
   system.autoUpgrade = {
     enable = true;
-    flags = [
-      "--print-build-logs"
-    ];
     dates = "11:30";
     randomizedDelaySec = "45min";
     allowReboot = false;  # Set to true if you want automatic reboots
