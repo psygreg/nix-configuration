@@ -30,6 +30,10 @@ wget -O ~/.config/autostart/gsr-ui.desktop https://raw.githubusercontent.com/psy
 wget -O ~/.bash_profile https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/bash_profile
 wget -O ~/.bashrc https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/bashrc
 
+# install unstable channel for mesa driver
+sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
+sudo nix-channel --update
+
 echo "All tasks complete!"
 sleep 2
 exit 0

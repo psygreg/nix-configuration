@@ -6,6 +6,9 @@
 let
     sources = import /home/psygreg/.nix/sources.nix;
     lanzaboote = import sources.lanzaboote;
+    unstable = import <nixpkgs-unstable> {
+	config = config.nixpkgs.config;
+    };
 in
 {
   imports =
@@ -100,8 +103,9 @@ in
   # additional hardware
   hardware.graphics = {
     enable = true;
+    package = unstable.mesa;
     enable32Bit = true;
-    extraPackages = with pkgs; [
+    extraPackages = with unstable; [
         intel-compute-runtime
 	intel-media-driver
         intel-graphics-compiler
