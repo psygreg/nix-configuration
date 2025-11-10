@@ -26,15 +26,16 @@ in
     };
 
   # Use latest kernel.
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_lqx;
     kernelParams = [ 
 	    "quiet"
 	    "splash"
+	    "i915.force_probe=!e20b"
+	    "xe.force_probe=e20b"
     ];
     kernel.sysctl = {
       "kernel.split_lock_mitigate" = 0;
       "kernel.nmi_watchdog" = 0;
-      "kernel.sched_bore" = "1";
     };
   };
 
