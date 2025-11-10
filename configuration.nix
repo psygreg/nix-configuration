@@ -27,11 +27,9 @@ in
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.kernelParams = [ 
-	"quiet"
-	"splash"
-	"kernel.split_lock_mitigate=0"
-	"i915.force_probe=!e20b"
-	"xe.force_probe=e20b"
+	  "quiet"
+	  "splash"
+	  "kernel.split_lock_mitigate=0"
   ];
 
   networking.hostName = "nixos"; # Define your hostname.
@@ -103,10 +101,10 @@ in
     enable32Bit = true;
     extraPackages = with pkgs; [
         intel-compute-runtime
-	intel-media-driver
+	      intel-media-driver
         intel-graphics-compiler
-	libvdpau-va-gl
-	vpl-gpu-rt
+	      libvdpau-va-gl
+	      vpl-gpu-rt
     ];
   };
 
@@ -135,9 +133,18 @@ in
   programs.firefox.enable = true;
   # enable starship
   programs.starship.enable = true;
+  # enable GSR
+  programs.gpu-screen-recorder.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  # steam setup
+  programs.steam = {
+  	enable = true;
+  	remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  	dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+  };
 
   # enable flatpaks
   services.flatpak.enable = true;
@@ -152,34 +159,40 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	# gnome extensions and stuff
-	gnomeExtensions.arcmenu
-	gnomeExtensions.appindicator
-	gnomeExtensions.dash-to-panel
-	gnomeExtensions.caffeine
-	gnomeExtensions.clipboard-indicator
-	refine
-	# utilities
-	podman-compose
-	distrobox
-	boxbuddy
-	host-spawn
-	addwater
-	starship
-	git
-	lshw
-	appimage-run
-	pciutils
-	openrazer-daemon
-	polychromatic
-	niv
-	sbctl
-	# apps
-	mission-center
-	discord
-	protonplus
-	audacity
-	gimp3
+	  # gnome extensions and stuff
+	  gnomeExtensions.arcmenu
+	  gnomeExtensions.appindicator
+	  gnomeExtensions.dash-to-panel
+	  gnomeExtensions.caffeine
+	  gnomeExtensions.clipboard-indicator
+	  refine
+	  tela-icon-theme
+	  # utilities
+	  podman-compose
+	  distrobox
+	  boxbuddy
+	  host-spawn
+	  addwater
+	  starship
+	  git
+	  lshw
+	  appimage-run
+	  pciutils
+	  openrazer-daemon
+	  polychromatic
+	  niv
+	  sbctl
+	  # apps
+	  mission-center
+	  protonplus
+	  audacity
+	  gimp3
+	  gpu-screen-recorder-gtk
+	  heroic
+	  # OBS setup
+	  obs-studio
+	  obs-studio-plugins.obs-move-transition
+	  obs-studio-plugins.obs-scene-as-transition
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
   ]; 
