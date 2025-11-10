@@ -17,6 +17,7 @@ in
   # Bootloader -- modified for lanzaboote
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.timeout = 2;
 
   boot.lanzaboote = {
     enable = true;
@@ -25,12 +26,15 @@ in
 
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
-
   boot.kernelParams = [ 
 	  "quiet"
 	  "splash"
-	  "kernel.split_lock_mitigate=0"
   ];
+  boot.kernel.sysctl = {
+    "kernel.split_lock_mitigate" = 0;
+    "kernel.nmi_watchdog" = 0;
+    "kernel.sched_bore" = "1";
+  };
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -96,15 +100,16 @@ in
   };
 
   # additional hardware
+  hardware.enableAllFirmware = true;
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
     extraPackages = with pkgs; [
         intel-compute-runtime
-	      intel-media-driver
+	intel-media-driver
         intel-graphics-compiler
-	      libvdpau-va-gl
-	      vpl-gpu-rt
+	libvdpau-va-gl
+	vpl-gpu-rt
     ];
   };
 
@@ -115,7 +120,14 @@ in
 
   hardware.openrazer.enable = true;
   zramSwap.enable = true;
-
+ 
+  # CachyOS ananicy setup
+  services.ananicy = with pkgs; {
+	enable = true;
+	package = ananicy-cpp;
+	rulesProvider = ananicy-rules-cachyos;
+  }; 
+  
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -159,40 +171,40 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  # gnome extensions and stuff
-	  gnomeExtensions.arcmenu
-	  gnomeExtensions.appindicator
-	  gnomeExtensions.dash-to-panel
-	  gnomeExtensions.caffeine
-	  gnomeExtensions.clipboard-indicator
-	  refine
-	  tela-icon-theme
-	  # utilities
-	  podman-compose
-	  distrobox
-	  boxbuddy
-	  host-spawn
-	  addwater
-	  starship
-	  git
-	  lshw
-	  appimage-run
-	  pciutils
-	  openrazer-daemon
-	  polychromatic
-	  niv
-	  sbctl
-	  # apps
-	  mission-center
-	  protonplus
-	  audacity
-	  gimp3
-	  gpu-screen-recorder-gtk
-	  heroic
-	  # OBS setup
-	  obs-studio
-	  obs-studio-plugins.obs-move-transition
-	  obs-studio-plugins.obs-scene-as-transition
+	# gnome extensions and stuff
+	gnomeExtensions.arcmenu
+	gnomeExtensions.appindicator
+	gnomeExtensions.dash-to-panel
+	gnomeExtensions.caffeine
+	gnomeExtensions.clipboard-indicator
+	refine
+	tela-icon-theme
+	# utilities
+	podman-compose
+	distrobox
+	boxbuddy
+	host-spawn
+	addwater
+	starship
+	git
+	lshw
+	appimage-run
+	pciutils
+	openrazer-daemon
+	polychromatic
+	niv
+	sbctl
+	# apps
+	mission-center
+	protonplus
+	audacity
+	gimp3
+	gpu-screen-recorder-gtk
+	heroic
+	# OBS setup
+	obs-studio
+	obs-studio-plugins.obs-move-transition
+	obs-studio-plugins.obs-scene-as-transition
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
   ]; 
