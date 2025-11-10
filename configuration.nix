@@ -15,36 +15,40 @@ in
     ];
 
   # Bootloader -- modified for lanzaboote
-  boot.loader.systemd-boot.enable = lib.mkForce false;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 2;
+  boot = {
+    loader.systemd-boot.enable = lib.mkForce false;
+    loader.efi.canTouchEfiVariables = true;
+    loader.timeout = 2;
 
-  boot.lanzaboote = {
-    enable = true;
-    pkiBundle = "/var/lib/sbctl";
-  };
+    lanzaboote = {
+      enable = true;
+      pkiBundle = "/var/lib/sbctl";
+    };
 
   # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = [ 
-	  "quiet"
-	  "splash"
-  ];
-  boot.kernel.sysctl = {
-    "kernel.split_lock_mitigate" = 0;
-    "kernel.nmi_watchdog" = 0;
-    "kernel.sched_bore" = "1";
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelParams = [ 
+	    "quiet"
+	    "splash"
+    ];
+    kernel.sysctl = {
+      "kernel.split_lock_mitigate" = 0;
+      "kernel.nmi_watchdog" = 0;
+      "kernel.sched_bore" = "1";
+    };
   };
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking = {
+    hostName = "nixos"; # Define your hostname.
+    # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+    # Configure network proxy if necessary
+    # networking.proxy.default = "http://user:password@proxy:port/";
+    # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+    # Enable networking
+    networkmanager.enable = true;
+  };
 
   # Set your time zone.
   time.timeZone = "America/Sao_Paulo";
@@ -64,69 +68,95 @@ in
     LC_TIME = "pt_BR.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
-  # Enable the GNOME Desktop Environment.
-  services.desktopManager.gnome.enable = true;
-  services.displayManager.gdm.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "intl";
-  };
-
   # Configure console keymap
   console.keyMap = "us-acentos";
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+  # Enable the X11 windowing system.
+  services = { 
+    xserver.enable = true;
+
+    # Enable the GNOME Desktop Environment.
+    desktopManager.gnome.enable = true;
+    displayManager.gdm.enable = true;
+
+    # Configure keymap in X11
+    xserver.xkb = {
+      layout = "us";
+      variant = "intl";
+    };
+
+    # Enable CUPS to print documents.
+    printing.enable = true;
+
+    # Enable sound with pipewire.
+    pulseaudio.enable = false;
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      # If you want to use JACK applications, uncomment this
+      #jack.enable = true;
+
+      # use the example session manager (no others are packaged yet so this is enabled by default,
+      # no need to redefine it in your config for now)
+      #media-session.enable = true;
+    };
+
+    # CachyOS ananicy setup
+    ananicy = with pkgs; {
+	    enable = true;
+	    package = ananicy-cpp;
+	    rulesProvider = ananicy-rules-cachyos;
+    }; 
+
+    # other performance stuff
+    preload.enable = true;
+
+    # earlyOOM setup
+    earlyoom = {
+      enable = true;
+      freeSwapThreshold = 2;
+      freeMemThreshold = 2;
+      extraArgs = [
+          "-g" "--avoid" "'^(X|plasma.*|konsole|kwin|wayland|gnome.*)$'"
+      ];
+    };
+
+    # enable flatpaks
+    flatpak.enable = true;
+  };
+
+  zramSwap.enable = true;
+  
+  nixpkgs.config = {
+    # Allow unfree packages
+    allowUnfree = true;
+    # override intel-vaapi for intel-media-driver
+    packageOverrides = pkgs: {
+      intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
+    };
   };
 
   # additional hardware
-  hardware.enableAllFirmware = true;
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-    extraPackages = with pkgs; [
+  hardware = {
+    enableAllFirmware = true;
+
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+      extraPackages = with pkgs; [
         intel-compute-runtime
-	intel-media-driver
+	      intel-media-driver
         intel-graphics-compiler
-	libvdpau-va-gl
-	vpl-gpu-rt
-    ];
-  };
+	      libvdpau-va-gl
+	      vpl-gpu-rt
+      ];
+    };
 
-  # override intel-vaapi for intel-media-driver
-  nixpkgs.config.packageOverrides = pkgs: {
-    intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
+    openrazer.enable = true;
   };
-
-  hardware.openrazer.enable = true;
-  zramSwap.enable = true;
- 
-  # CachyOS ananicy setup
-  services.ananicy = with pkgs; {
-	enable = true;
-	package = ananicy-cpp;
-	rulesProvider = ananicy-rules-cachyos;
-  }; 
   
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -141,25 +171,23 @@ in
     ];
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
-  # enable starship
-  programs.starship.enable = true;
-  # enable GSR
-  programs.gpu-screen-recorder.enable = true;
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  programs = {
+    # Install firefox.
+    firefox.enable = true;
+    # enable starship
+    starship.enable = true;
+    # enable GSR
+    gpu-screen-recorder.enable = true;
 
   # steam setup
-  programs.steam = {
-  	enable = true;
-  	remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-  	dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    steam = {
+  	  enable = true;
+  	  remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  	  dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    };
   };
 
-  # enable flatpaks
-  services.flatpak.enable = true;
+  # enable flathub
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
     path = [ pkgs.flatpak ];
@@ -171,42 +199,42 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	# gnome extensions and stuff
-	gnomeExtensions.arcmenu
-	gnomeExtensions.appindicator
-	gnomeExtensions.dash-to-panel
-	gnomeExtensions.caffeine
-	gnomeExtensions.clipboard-indicator
-	refine
-	tela-icon-theme
-	# utilities
-	podman-compose
-	distrobox
-	boxbuddy
-	host-spawn
-	addwater
-	starship
-	git
-	lshw
-	appimage-run
-	pciutils
-	openrazer-daemon
-	polychromatic
-	niv
-	sbctl
-	# apps
-	mission-center
-	protonplus
-	audacity
-	gimp3
-	gpu-screen-recorder-gtk
-	heroic
-	# OBS setup
-	obs-studio
-	obs-studio-plugins.obs-move-transition
-	obs-studio-plugins.obs-scene-as-transition
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+	  # gnome extensions and stuff
+	  gnomeExtensions.arcmenu
+	  gnomeExtensions.appindicator
+	  gnomeExtensions.dash-to-panel
+	  gnomeExtensions.caffeine
+	  gnomeExtensions.clipboard-indicator
+	  refine
+	  tela-icon-theme
+	  # utilities
+	  podman-compose
+	  distrobox
+	  boxbuddy
+	  host-spawn
+	  addwater
+	  starship
+	  git
+	  lshw
+	  appimage-run
+	  pciutils
+	  openrazer-daemon
+	  polychromatic
+	  niv
+	  sbctl
+	  # apps
+	  mission-center
+	  protonplus
+	  audacity
+	  gimp3
+	  gpu-screen-recorder-gtk
+	  heroic
+	  # OBS setup
+	  obs-studio
+	  obs-studio-plugins.obs-move-transition
+	  obs-studio-plugins.obs-scene-as-transition
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
   ]; 
 
   virtualisation = {
@@ -234,23 +262,10 @@ in
 
   # environment variable fixes
   environment.sessionVariables = {
-	VDPAU_DRIVER = "va_gl";
-	GSK_RENDERER = "gl";
-	MESA_SHADER_CACHE_MAX_SIZE = "12G";
-	LIBVA_DRIVER_NAME = "iHD";
-  };
-
-  # other performance stuff
-  services.preload.enable = true;
-
-  # earlyOOM setup
-  services.earlyoom = {
-      enable = true;
-      freeSwapThreshold = 2;
-      freeMemThreshold = 2;
-      extraArgs = [
-          "-g" "--avoid" "'^(X|plasma.*|konsole|kwin|wayland|gnome.*)$'"
-      ];
+	  VDPAU_DRIVER = "va_gl";
+	  GSK_RENDERER = "gl";
+	  MESA_SHADER_CACHE_MAX_SIZE = "12G";
+	  LIBVA_DRIVER_NAME = "iHD";
   };
 
 
