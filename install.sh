@@ -16,13 +16,6 @@ distrobox enter fedora -- bash -c "
     sudo dnf install rpm-build \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
-# arch image: ghcr.io/ublue-os/arch-toolbox
-distrobox enter arch -- bash -c "
-    sudo pacman -Syu --noconfirm \
-    sudo pacman -S --noconfirm prismlauncher base-devel intel-media-sdk vpl-gpu-rt qt6-wayland \
-    paru -S --skipreview --noconfirm vintagestory heroic-games-launcher-bin gpu-screen-recorder-ui obs-studio-browser \
-    curl -sS https://starship.rs/install.sh | sh \
-    exit 0"
 # set up GSR autostart
 mkdir -p ~/.config/autostart
 wget -O ~/.config/autostart/gsr-ui.desktop https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/gsr-ui.desktop

@@ -232,6 +232,7 @@ in
 	  gimp3
 	  gpu-screen-recorder-gtk
 	  heroic
+	  vintagestory
 	  # OBS setup
 	  obs-studio
 	  obs-studio-plugins.obs-move-transition
@@ -241,11 +242,11 @@ in
   ]; 
 
   fonts.packages = with pkgs; [
-	noto-fonts
-	noto-fonts-cjk-sans
-	noto-fonts-color-emoji
-	liberation_ttf
-	cantarell-fonts
+	  noto-fonts
+	  noto-fonts-cjk-sans
+	  noto-fonts-color-emoji
+	  liberation_ttf
+	  cantarell-fonts
   ];
 
   virtualisation = {
