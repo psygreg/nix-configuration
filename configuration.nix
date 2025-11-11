@@ -6,12 +6,17 @@
 let
     sources = import /home/psygreg/.nix/sources.nix;
     lanzaboote = import sources.lanzaboote;
+    nix-flatpak = builtins.fetchTarball {
+      url = "https://github.com/gmodena/nix-flatpak/archive/refs/tags/v0.6.0.tar.gz";
+      sha256 = "0s3mpb28rcmma29vv884fi3as926bfszhn7v8n74bpnp5qg5a1c8";
+    };
 in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       lanzaboote.nixosModules.lanzaboote
+      "${nix-flatpak}/modules/nixos.nix"
     ];
 
   # Bootloader -- modified for lanzaboote
@@ -30,7 +35,6 @@ in
     kernelParams = [ 
 	    "quiet"
 	    "splash"
-	    "mitigations=off"
 	    "i915.force_probe=!e20b"
 	    "xe.force_probe=e20b"
     ];
@@ -126,8 +130,24 @@ in
       ];
     };
 
-    # enable flatpaks
-    flatpak.enable = true;
+    # enable nix-flatpak declarative flatpaks
+    flatpak = {
+      enable = true;
+      packages = [
+        "com.chatterino.chatterino"
+        "com.discordapp.Discord"
+        "com.github.rafostar.Clapper"
+        "com.protonvpn.www"
+        "fr.handbrake.ghb"
+        "io.github.thetumultuousunicornofdarkness.cpu-x"
+        "me.proton.Mail"
+        "org.prismlauncher.PrismLauncher"
+      ];
+      update.auto = {
+        enable = true;
+        onCalendar = "daily";
+      };
+    };
   };
 
   zramSwap.enable = true;
