@@ -223,6 +223,7 @@ in
 	  polychromatic
 	  niv
 	  sbctl
+	  disfetch
 	  # apps
 	  mission-center
 	  protonplus
@@ -237,6 +238,13 @@ in
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
   ]; 
+
+  fonts.packages = with pkgs; [
+	  noto-fonts
+	  noto-fonts-cjk-sans
+	  noto-fonts-color-emoji
+	  liberation_ttf
+  ];
 
   virtualisation = {
         containers.enable = true;
