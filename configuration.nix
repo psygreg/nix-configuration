@@ -30,6 +30,7 @@ in
     kernelParams = [ 
 	    "quiet"
 	    "splash"
+	    "mitigations=off"
 	    "i915.force_probe=!e20b"
 	    "xe.force_probe=e20b"
     ];
@@ -240,10 +241,11 @@ in
   ]; 
 
   fonts.packages = with pkgs; [
-	  noto-fonts
-	  noto-fonts-cjk-sans
-	  noto-fonts-color-emoji
-	  liberation_ttf
+	noto-fonts
+	noto-fonts-cjk-sans
+	noto-fonts-color-emoji
+	liberation_ttf
+	cantarell-fonts
   ];
 
   virtualisation = {
@@ -264,8 +266,7 @@ in
   };
   system.autoUpgrade = {
     enable = true;
-    dates = "11:30";
-    randomizedDelaySec = "45min";
+    dates = "daily";
     allowReboot = false;  # Set to true if you want automatic reboots
   };
 
