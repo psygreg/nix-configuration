@@ -227,6 +227,7 @@ in
 	  gnomeExtensions.dash-to-panel
 	  gnomeExtensions.caffeine
 	  gnomeExtensions.clipboard-indicator
+    gnomeExtensions.blur-my-shell
 	  refine
 	  tela-icon-theme
 	  # utilities
