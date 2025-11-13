@@ -29,6 +29,14 @@ sudo cp ~/.nix/* /etc/nixos
 ln -s /etc/nixos/sources.nix ~/.nix/sources.nix
 ln -s /etc/nixos/sources.json ~/.nix/sources.json
 
+# photogimp setup
+wget https://github.com/Diolinux/PhotoGIMP/releases/download/3.0/PhotoGIMP-linux.zip
+unzip PhotoGIMP-linux.zip
+cd PhotoGIMP/.config
+rsync -a --remove-source-files GIMP/ ~/.config/GIMP/
+cd ../../
+rm -r PhotoGIMP
+
 echo "All tasks complete!"
 sleep 2
 exit 0
