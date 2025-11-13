@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Set up distroboxes before running this!
-# ubuntu image: ghcr.io/ublue-os/ubuntu-toolbox
+# ubuntu image: quay.io/toolbx/ubuntu-toolbox
 distrobox enter ubuntu -- bash -c "
     sudo apt update && sudo apt upgrade -y \
     echo "code code/add-microsoft-repo boolean true" | sudo debconf-set-selections \
@@ -10,15 +10,12 @@ distrobox enter ubuntu -- bash -c "
     sudo apt install -y gnome-keyring git curl build-essential whiptail libdw-dev gcc git libncurses-dev curl gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf make rustc bc rsync python-is-python3 perl gettext cpio pahole debhelper dwarves zstd \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
-# fedora image: ghcr.io/ublue-os/fedora-toolbox
+# fedora image: quay.io/fedora/fedora-toolbox
 distrobox enter fedora -- bash -c "
     sudo dnf upgrade -y \
     sudo dnf install rpm-build \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
-# set up GSR autostart
-mkdir -p ~/.config/autostart
-wget -O ~/.config/autostart/gsr-ui.desktop https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/gsr-ui.desktop
 # enable starship on NixOS and all distroboxes
 wget -O ~/.bash_profile https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/bash_profile
 wget -O ~/.bashrc https://raw.githubusercontent.com/psygreg/nix-configuration/main/resources/bashrc
@@ -26,6 +23,11 @@ wget -O ~/.bashrc https://raw.githubusercontent.com/psygreg/nix-configuration/ma
 # change to unstable channel
 sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixos
 sudo nix-channel --update
+
+# sources.nix by niv fix
+sudo cp ~/.nix/* /etc/nixos
+ln -s /etc/nixos/sources.nix ~/.nix/sources.nix
+ln -s /etc/nixos/sources.json ~/.nix/sources.json
 
 echo "All tasks complete!"
 sleep 2
