@@ -7,7 +7,7 @@ distrobox enter ubuntu -- bash -c "
     echo "code code/add-microsoft-repo boolean true" | sudo debconf-set-selections \
     wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/code_1.105.1-1760482543_amd64.deb \
     sudo apt install ./code_1.105.1-1760482543_amd64.deb \
-    sudo apt install -y git curl build-essential whiptail libdw-dev gcc git libncurses-dev curl gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf make rustc bc rsync python-is-python3 perl gettext cpio pahole debhelper dwarves zstd \
+    sudo apt install -y gnome-keyring git curl build-essential whiptail libdw-dev gcc git libncurses-dev curl gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf make rustc bc rsync python-is-python3 perl gettext cpio pahole debhelper dwarves zstd \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
 # fedora image: ghcr.io/ublue-os/fedora-toolbox
