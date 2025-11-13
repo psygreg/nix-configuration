@@ -2,9 +2,9 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 let
-    sources = import /home/psygreg/.nix/sources.nix;
+    sources = import ./sources.nix;
     lanzaboote = import sources.lanzaboote;
     nix-flatpak = builtins.fetchTarball {
       url = "https://github.com/gmodena/nix-flatpak/archive/refs/tags/v0.6.0.tar.gz";
@@ -18,6 +18,8 @@ in
       lanzaboote.nixosModules.lanzaboote
       "${nix-flatpak}/modules/nixos.nix"
     ];
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Bootloader -- modified for lanzaboote
   boot = {
@@ -161,6 +163,8 @@ in
     };
   };
 
+  chaotic.mesa-git.enable = true;
+
   # additional hardware
   hardware = {
     enableAllFirmware = true;
@@ -179,7 +183,7 @@ in
 
     openrazer.enable = true;
   };
-  
+    
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -227,7 +231,7 @@ in
 	  gnomeExtensions.dash-to-panel
 	  gnomeExtensions.caffeine
 	  gnomeExtensions.clipboard-indicator
-    gnomeExtensions.blur-my-shell
+	  gnomeExtensions.blur-my-shell
 	  refine
 	  tela-icon-theme
 	  # utilities
@@ -288,6 +292,7 @@ in
   };
   system.autoUpgrade = {
     enable = true;
+    flake = inputs.self.outPath;
     dates = "daily";
     allowReboot = false;  # Set to true if you want automatic reboots
   };
