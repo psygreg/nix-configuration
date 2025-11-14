@@ -147,6 +147,7 @@ in
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
         "org.qbittorrent.qBittorrent"
+	"com.mattjakeman.ExtensionManager"
       ];
       update.auto = {
         enable = true;
@@ -166,8 +167,6 @@ in
     };
   };
 
-  chaotic.mesa-git.enable = true;
-
   # additional hardware
   hardware = {
     enableAllFirmware = true;
@@ -175,13 +174,13 @@ in
     graphics = {
       enable = true;
       enable32Bit = true;
-      #extraPackages = with pkgs; [
-      #  intel-compute-runtime
-      #	      intel-media-driver
-       # intel-graphics-compiler
-	#      libvdpau-va-gl
-	 #     vpl-gpu-rt
-      #];
+      extraPackages = with pkgs; [
+        # intel-compute-runtime
+        intel-media-driver
+        # intel-graphics-compiler
+	libvdpau-va-gl
+	vpl-gpu-rt
+      ];
     };
 
     openrazer.enable = true;
@@ -229,12 +228,12 @@ in
   # $ nix search wget
   environment.systemPackages = with pkgs; [
 	  # gnome extensions and stuff
-	  gnomeExtensions.arcmenu
-	  gnomeExtensions.appindicator
-	  gnomeExtensions.dash-to-panel
-	  gnomeExtensions.caffeine
-	  gnomeExtensions.clipboard-indicator
-	  gnomeExtensions.blur-my-shell
+	  #gnomeExtensions.arcmenu
+	  #gnomeExtensions.appindicator
+	  #gnomeExtensions.dash-to-panel
+	  #gnomeExtensions.caffeine
+	  #gnomeExtensions.clipboard-indicator
+	  #gnomeExtensions.blur-my-shell
 	  refine
 	  tela-icon-theme
 	  # utilities
@@ -262,9 +261,9 @@ in
 	  heroic
 	  vintagestory
 	  # OBS setup
-	  # obs-studio
-	  # obs-studio-plugins.obs-move-transition
-	  # obs-studio-plugins.obs-scene-as-transition
+	  obs-studio
+	  obs-studio-plugins.obs-move-transition
+	  obs-studio-plugins.obs-scene-as-transition
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
   ]; 

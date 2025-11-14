@@ -1,1 +1,5 @@
+psyupd () {
+	sudo nix flake update --flake path:/etc/nixos && sudo nixos-rebuild boot --flake path:/etc/nixos#nixos
+}
+ 
 eval "$(starship init bash)"
