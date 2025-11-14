@@ -13,7 +13,9 @@ distrobox enter ubuntu -- bash -c "
 # fedora image: quay.io/fedora/fedora-toolbox
 distrobox enter fedora -- bash -c "
     sudo dnf upgrade -y \
-    sudo dnf install rpm-build \
+    sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm \
+    sudo dnf swap ffmpeg-free ffmpeg --allowerasing \
+    sudo dnf install intel-media-driver obs-studio rpm-build -y \
     curl -sS https://starship.rs/install.sh | sh \
     exit 0"
 # enable starship on NixOS and all distroboxes

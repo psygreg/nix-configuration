@@ -37,6 +37,7 @@ in
     kernelParams = [ 
 	    "quiet"
 	    "splash"
+	    "mitigations=off"
 	    "i915.force_probe=!e20b"
 	    "xe.force_probe=e20b"
     ];
@@ -138,12 +139,14 @@ in
       packages = [
         "com.chatterino.chatterino"
         "com.discordapp.Discord"
+        "com.stremio.Stremio"
         "com.github.rafostar.Clapper"
         "com.protonvpn.www"
         "fr.handbrake.ghb"
         "io.github.thetumultuousunicornofdarkness.cpu-x"
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
+        "org.qbittorrent.qBittorrent"
       ];
       update.auto = {
         enable = true;
@@ -172,13 +175,13 @@ in
     graphics = {
       enable = true;
       enable32Bit = true;
-      extraPackages = with pkgs; [
-        intel-compute-runtime
-	      intel-media-driver
-        intel-graphics-compiler
-	      libvdpau-va-gl
-	      vpl-gpu-rt
-      ];
+      #extraPackages = with pkgs; [
+      #  intel-compute-runtime
+      #	      intel-media-driver
+       # intel-graphics-compiler
+	#      libvdpau-va-gl
+	 #     vpl-gpu-rt
+      #];
     };
 
     openrazer.enable = true;
@@ -255,13 +258,13 @@ in
 	  protonplus
 	  audacity
 	  gimp3
-	  gpu-screen-recorder-gtk
+	  # gpu-screen-recorder-gtk
 	  heroic
 	  vintagestory
 	  # OBS setup
-	  obs-studio
-	  obs-studio-plugins.obs-move-transition
-	  obs-studio-plugins.obs-scene-as-transition
+	  # obs-studio
+	  # obs-studio-plugins.obs-move-transition
+	  # obs-studio-plugins.obs-scene-as-transition
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
   ]; 
