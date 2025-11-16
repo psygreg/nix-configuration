@@ -33,11 +33,10 @@ in
     };
 
   # Use latest kernel.
-    kernelPackages = pkgs.linuxPackages_lqx;
+    kernelPackages = pkgs.linuxPackages;
     kernelParams = [ 
 	    "quiet"
 	    "splash"
-	    "mitigations=off"
 	    "i915.force_probe=!e20b"
 	    "xe.force_probe=e20b"
     ];
@@ -139,15 +138,13 @@ in
       packages = [
         "com.chatterino.chatterino"
         "com.discordapp.Discord"
-        "com.stremio.Stremio"
         "com.github.rafostar.Clapper"
         "com.protonvpn.www"
         "fr.handbrake.ghb"
         "io.github.thetumultuousunicornofdarkness.cpu-x"
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
-        "org.qbittorrent.qBittorrent"
-	"com.mattjakeman.ExtensionManager"
+	      "com.mattjakeman.ExtensionManager"
       ];
       update.auto = {
         enable = true;
@@ -234,6 +231,7 @@ in
 	  #gnomeExtensions.caffeine
 	  #gnomeExtensions.clipboard-indicator
 	  #gnomeExtensions.blur-my-shell
+	  gnome-menus
 	  refine
 	  tela-icon-theme
 	  # utilities
@@ -274,6 +272,7 @@ in
 	  noto-fonts-color-emoji
 	  liberation_ttf
 	  cantarell-fonts
+	  poppins
   ];
 
   virtualisation = {
