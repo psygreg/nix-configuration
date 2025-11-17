@@ -2,4 +2,8 @@ psyupd () {
 	sudo nix flake update --flake path:/etc/nixos && sudo nixos-rebuild boot --flake path:/etc/nixos#nixos
 }
  
+resolve () {
+	distrobox enter davincibox -- /opt/resolve/bin/resolve
+}
+
 eval "$(starship init bash)"

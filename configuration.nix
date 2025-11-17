@@ -37,8 +37,6 @@ in
     kernelParams = [ 
 	    "quiet"
 	    "splash"
-	    "i915.force_probe=!e20b"
-	    "xe.force_probe=e20b"
     ];
     kernel.sysctl = {
       "kernel.split_lock_mitigate" = 0;
@@ -158,10 +156,6 @@ in
   nixpkgs.config = {
     # Allow unfree packages
     allowUnfree = true;
-    # override intel-vaapi for intel-media-driver
-    packageOverrides = pkgs: {
-      intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
-    };
   };
 
   # additional hardware
@@ -171,17 +165,32 @@ in
     graphics = {
       enable = true;
       enable32Bit = true;
-      extraPackages = with pkgs; [
-        # intel-compute-runtime
-        intel-media-driver
-        # intel-graphics-compiler
-	libvdpau-va-gl
-	vpl-gpu-rt
-      ];
     };
+    # enable ROCM through opencl
+    amdgpu.opencl.enable = true;
+
+    firmware = [ pkgs.linux-firmware ];
 
     openrazer.enable = true;
   };
+
+  systemd.tmpfiles.rules = 
+  let
+    rocmEnv = pkgs.symlinkJoin {
+      name = "rocm-combined";
+      paths = with pkgs.rocmPackages; [
+        rocblas
+        hipblas
+        clr
+	rocm-runtime
+	rocm-device-libs
+	rocminfo
+	rocm-smi
+      ];
+    };
+  in [
+    "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+  ];
     
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -201,8 +210,6 @@ in
     firefox.enable = true;
     # enable starship
     starship.enable = true;
-    # enable GSR
-    gpu-screen-recorder.enable = true;
 
   # steam setup
     steam = {
@@ -224,16 +231,10 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  # gnome extensions and stuff
-	  #gnomeExtensions.arcmenu
-	  #gnomeExtensions.appindicator
-	  #gnomeExtensions.dash-to-panel
-	  #gnomeExtensions.caffeine
-	  #gnomeExtensions.clipboard-indicator
-	  #gnomeExtensions.blur-my-shell
-	  gnome-menus
+    # gnome stuff
 	  refine
 	  tela-icon-theme
+	  ffmpegthumbnailer
 	  # utilities
 	  podman-compose
 	  distrobox
@@ -255,7 +256,6 @@ in
 	  protonplus
 	  audacity
 	  gimp3
-	  # gpu-screen-recorder-gtk
 	  heroic
 	  vintagestory
 	  # OBS setup
@@ -300,10 +300,8 @@ in
 
   # environment variable fixes
   environment.sessionVariables = {
-	  VDPAU_DRIVER = "va_gl";
-	  GSK_RENDERER = "gl";
 	  MESA_SHADER_CACHE_MAX_SIZE = "12G";
-	  LIBVA_DRIVER_NAME = "iHD";
+    AMD_VULKAN_ICD = "RADV";
   };
 
 
