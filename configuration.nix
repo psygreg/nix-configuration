@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, ... }:
 let
     sources = import ./sources.nix;
     lanzaboote = import sources.lanzaboote;
@@ -18,8 +18,6 @@ in
       lanzaboote.nixosModules.lanzaboote
       "${nix-flatpak}/modules/nixos.nix"
     ];
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Bootloader -- modified for lanzaboote
   boot = {
@@ -293,7 +291,6 @@ in
   };
   system.autoUpgrade = {
     enable = true;
-    flake = inputs.self.outPath;
     dates = "daily";
     allowReboot = false;  # Set to true if you want automatic reboots
   };
