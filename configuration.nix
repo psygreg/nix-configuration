@@ -148,10 +148,10 @@ in
         "io.github.thetumultuousunicornofdarkness.cpu-x"
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
-	      "com.mattjakeman.ExtensionManager"
 	      "org.upscayl.Upscayl"
 	      "org.chromium.Chromium"
 	      "org.audacityteam.Audacity"
+	      "com.dec05eba.gpu_screen_recorder"
       ];
       update.auto = {
         enable = true;
