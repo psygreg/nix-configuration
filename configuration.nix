@@ -31,7 +31,7 @@ in
     };
 
   # Use latest kernel.
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_cachyos-gcc;
     kernelModules = [ "tcp_bbr" ];
     kernelParams = [
 	    "quiet"
@@ -283,6 +283,8 @@ in
   environment.systemPackages = with pkgs; [
     # gnome stuff
 	  kdePackages.partitionmanager
+    kdePackages.ksystemlog
+    kdePackages.kcalc
 	  tela-icon-theme
 	  ffmpegthumbnailer
 	  # utilities
@@ -301,6 +303,7 @@ in
 	  niv
 	  sbctl
 	  disfetch
+    wayland-utils
 	  # apps
 	  mission-center
 	  protonplus
