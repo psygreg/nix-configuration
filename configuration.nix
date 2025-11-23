@@ -152,6 +152,7 @@ in
 	      "org.chromium.Chromium"
 	      "org.audacityteam.Audacity"
 	      "com.dec05eba.gpu_screen_recorder"
+        "org.gnome.Logs"
       ];
       update.auto = {
         enable = true;
@@ -283,7 +284,6 @@ in
   environment.systemPackages = with pkgs; [
     # gnome stuff
 	  kdePackages.partitionmanager
-    kdePackages.ksystemlog
     kdePackages.kcalc
 	  tela-icon-theme
 	  ffmpegthumbnailer
