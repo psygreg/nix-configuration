@@ -314,6 +314,7 @@ in
 	  vintagestory
 	  # OBS setup
 	  obs-studio
+    obs-studio-plugins.obs-pipewire-audio-capture
 	  obs-studio-plugins.obs-move-transition
 	  obs-studio-plugins.obs-scene-as-transition
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
