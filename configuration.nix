@@ -152,7 +152,7 @@ in
 	      "org.chromium.Chromium"
 	      "org.audacityteam.Audacity"
 	      "com.dec05eba.gpu_screen_recorder"
-        "org.gnome.Logs"
+	      "org.gnome.Logs"
       ];
       update.auto = {
         enable = true;
@@ -281,45 +281,55 @@ in
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    # gnome stuff
-	  kdePackages.partitionmanager
-    kdePackages.kcalc
-	  tela-icon-theme
-	  ffmpegthumbnailer
-	  # utilities
-	  podman-compose
-	  distrobox
-	  boxbuddy
-	  host-spawn
-	  addwater
-	  starship
-	  git
-	  lshw
-	  appimage-run
-	  pciutils
-	  openrazer-daemon
-	  polychromatic
-	  niv
-	  sbctl
-	  disfetch
-    wayland-utils
-	  # apps
-	  mission-center
-	  protonplus
-	  gimp3
-	  heroic
-	  faugus-launcher
-	  protontricks
-	  vintagestory
-	  # OBS setup
-	  obs-studio
-    obs-studio-plugins.obs-pipewire-audio-capture
-	  obs-studio-plugins.obs-move-transition
-	  obs-studio-plugins.obs-scene-as-transition
-    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    #  wget
-  ]; 
+  environment = with pkgs; {
+	  systemPackages = [
+      # gnome stuff
+	    kdePackages.partitionmanager
+	    kdePackages.kcalc
+	    tela-icon-theme
+	    ffmpegthumbnailer
+	    # utilities
+	    podman-compose
+	    distrobox
+	    boxbuddy
+	    host-spawn
+	    addwater
+	    starship
+	    git
+	    lshw
+	    appimage-run
+	    pciutils
+	    openrazer-daemon
+	    polychromatic
+	    niv
+	    sbctl
+	    disfetch
+	    wayland-utils
+	    # apps
+	    mission-center
+	    protonplus
+	    gimp3
+	    heroic
+	    faugus-launcher
+	    protontricks
+	    vintagestory
+	    # OBS setup
+	    obs-studio
+	    obs-studio-plugins.obs-pipewire-audio-capture
+	    obs-studio-plugins.obs-move-transition
+	    obs-studio-plugins.obs-scene-as-transition
+      #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+      #  wget
+    ];
+	  plasma6.excludePackages = [
+	    kdePackages.discover
+	  ];
+	  # environment variable fixes
+    sessionVariables = {
+      MESA_SHADER_CACHE_MAX_SIZE = "12G";
+      AMD_VULKAN_ICD = "RADV";
+    };
+  }; 
 
   fonts.packages = with pkgs; [
 	  noto-fonts
@@ -379,13 +389,6 @@ in
       RandomizedDelaySec = "1h";
     };
   };
-
-  # environment variable fixes
-  environment.sessionVariables = {
-	  MESA_SHADER_CACHE_MAX_SIZE = "12G";
-    AMD_VULKAN_ICD = "RADV";
-  };
-
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
