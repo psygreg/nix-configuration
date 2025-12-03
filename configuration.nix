@@ -2,41 +2,31 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, inputs, ... }:
-let
-    sources = import ./sources.nix;
-    lanzaboote = import sources.lanzaboote;
-    nix-flatpak = builtins.fetchTarball {
-      url = "https://github.com/gmodena/nix-flatpak/archive/refs/tags/v0.6.0.tar.gz";
-      sha256 = "0s3mpb28rcmma29vv884fi3as926bfszhn7v8n74bpnp5qg5a1c8";
-    };
-in
+{ config, pkgs, unstable, nix-flatpak, lanzaboote, lib, inputs, ... }:
+
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      lanzaboote.nixosModules.lanzaboote
-      "${nix-flatpak}/modules/nixos.nix"
     ];
 
-  # Bootloader -- modified for lanzaboote
+  # Bootloader.
   boot = {
     loader.systemd-boot.enable = lib.mkForce false;
     loader.efi.canTouchEfiVariables = true;
     loader.timeout = 2;
-
     lanzaboote = {
       enable = true;
       pkiBundle = "/var/lib/sbctl";
     };
 
-  # Use latest kernel.
     kernelPackages = pkgs.linuxPackages_cachyos-gcc;
     kernelModules = [ "tcp_bbr" ];
     kernelParams = [
-	    "quiet"
-	    "splash"
-	    "preempt=full"
+      "quiet"
+      "splash"
+      "preempt=full"
+      "mitigations=off"
     ];
     kernel.sysctl = {
       "kernel.split_lock_mitigate" = 0;
@@ -47,17 +37,15 @@ in
     };
   };
 
-  networking = {
-    hostName = "nixos"; # Define your hostname.
-    # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-    # Configure network proxy if necessary
-    # networking.proxy.default = "http://user:password@proxy:port/";
-    # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-    # Enable networking
-    networkmanager.enable = true;
-  };
+  # Enable networking
+  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "America/Sao_Paulo";
@@ -80,15 +68,16 @@ in
   # Configure console keymap
   console.keyMap = "us-acentos";
   security.rtkit.enable = true;
-
   # Enable the X11 windowing system.
-  services = { 
+  # You can disable this if you're only using the Wayland session.
+  services = {
     xserver.enable = true;
-
-    # Enable the Plasma Desktop Environment.
-    displayManager.sddm = { 
-	    enable = true;
-	    wayland.enable = true;
+    # Enable the KDE Plasma Desktop Environment.
+    displayManager = {
+      sddm = {
+        enable = true;
+        wayland.enable = true;
+      };
     };
     desktopManager.plasma6.enable = true;
 
@@ -118,13 +107,10 @@ in
 
     # CachyOS ananicy setup
     ananicy = with pkgs; {
-	    enable = true;
-	    package = ananicy-cpp;
-	    rulesProvider = ananicy-rules-cachyos;
-    }; 
-
-    # other performance stuff
-    preload.enable = true;
+      enable = true;
+      package = ananicy-cpp;
+      rulesProvider = ananicy-rules-cachyos;
+    };
 
     # earlyOOM setup
     earlyoom = {
@@ -148,18 +134,18 @@ in
         "io.github.thetumultuousunicornofdarkness.cpu-x"
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
-	      "org.upscayl.Upscayl"
-	      "org.chromium.Chromium"
-	      "org.audacityteam.Audacity"
-	      "com.dec05eba.gpu_screen_recorder"
-	      "org.gnome.Logs"
+        "org.upscayl.Upscayl"
+        "org.chromium.Chromium"
+        "org.audacityteam.Audacity"
+        "com.dec05eba.gpu_screen_recorder"
+        "org.gnome.Logs"
       ];
       update.auto = {
         enable = true;
         onCalendar = "daily";
       };
     };
-    
+
     # udev rules
     udev = {
 	    enable = true;
@@ -195,14 +181,83 @@ in
     		  ATTR{queue/scheduler}="none"
 	    '';
     };
+
+    # Enable touchpad support (enabled default in most desktopManager).
+    # services.xserver.libinput.enable = true;
+  };
+
+  # enable flathub
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
+
+  # systemd service to set vm.min_free_kbytes dynamically as 1% of total memory size
+  systemd.services.set-min-free-mem = {
+    description = "Set vm.min_free_kbytes dynamically";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      ExecStart= [
+        ''
+        /bin/sh -c "sysctl -w vm.min_free_kbytes=$(awk '/MemTotal/ {printf \"%.0f\", $2 * 0.01}' /proc/meminfo)";
+        ''
+      ];
+    };
+    wantedBy = [ "multi-user.target" ];
+    after = [ "local-fs.target" ];
   };
 
   zramSwap.enable = true;
-  
-  nixpkgs.config = {
-    # Allow unfree packages
-    allowUnfree = true;
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.psygreg = {
+    isNormalUser = true;
+    description = "Victor Gregory";
+    extraGroups = [ "networkmanager" "wheel" "podman" "render" "video" "openrazer" ];
+    # Subuid and subgid ranges for user namespaces, fixes distrobox
+    subUidRanges = [
+      {
+        startUid = 100000;
+        count = 65536;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = 100000;
+        count = 65536;
+      }
+    ];
+    packages = with pkgs; [
+      kdePackages.kate
+    #  thunderbird
+    ];
   };
+
+  programs = {
+    # Install firefox.
+    firefox.enable = true;
+    # enable starship
+    starship.enable = true;
+
+    # steam setup
+    steam = {
+  	  enable = true;
+  	  remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  	  dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    };
+  };
+
+  xdg.portal = with pkgs; {
+    enable = true;
+    extraPortals = [ xdg-desktop-portal-gtk ];
+  };
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
 
   # additional hardware
   hardware = {
@@ -220,7 +275,7 @@ in
     openrazer.enable = true;
   };
 
-  systemd.tmpfiles.rules = 
+  systemd.tmpfiles.rules =
   let
     rocmEnv = pkgs.symlinkJoin {
       name = "rocm-combined";
@@ -237,99 +292,68 @@ in
   in [
     "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
   ];
-    
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.psygreg = {
-    isNormalUser = true;
-    description = "Victor";
-    extraGroups = [ "networkmanager" "wheel" "podman" "openrazer" ];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
-  };
-
-  programs = {
-    # Install firefox.
-    firefox.enable = true;
-    # enable starship
-    starship.enable = true;
-
-  # steam setup
-    steam = {
-  	  enable = true;
-  	  remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-  	  dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    };
-  };
-  
-  xdg.portal = with pkgs; {
-	  enable = true;
-	  extraPortals = [ xdg-desktop-portal-gtk ];
-  };
-
-  # enable flathub
-  systemd.services.flatpak-repo = {
-    wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.flatpak ];
-    script = ''
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    '';
-  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment = with pkgs; {
-	  systemPackages = [
-      # gnome stuff
-	    kdePackages.partitionmanager
-	    kdePackages.kcalc
-	    tela-icon-theme
-	    ffmpegthumbnailer
-	    # utilities
-	    podman-compose
-	    distrobox
-	    boxbuddy
-	    host-spawn
-	    addwater
-	    starship
-	    git
-	    lshw
-	    appimage-run
-	    pciutils
-	    openrazer-daemon
-	    polychromatic
-	    niv
-	    sbctl
-	    disfetch
-	    wayland-utils
-	    # apps
-	    mission-center
-	    protonplus
-	    gimp3
-	    heroic
-	    faugus-launcher
-	    protontricks
-	    vintagestory
-	    # OBS setup
-	    obs-studio
-	    obs-studio-plugins.obs-pipewire-audio-capture
-	    obs-studio-plugins.obs-move-transition
-	    obs-studio-plugins.obs-scene-as-transition
+    systemPackages = [
+      # kde stuff
+      kdePackages.partitionmanager
+      kdePackages.kcalc
+      tela-icon-theme
+      ffmpegthumbnailer
+      # utilities
+      podman-compose
+      distrobox
+      # fix distrobox missing commands after gc/update
+      (distrobox.overrideAttrs (oldAttrs: {
+        postInstall = (oldAttrs.postInstall or "") + ''
+          for file in $out/bin/*; do
+            sed -i 's|distrobox_path="$(dirname "$(realpath "$0")")"|distrobox_path="/run/current-system/sw/bin"|g' "$file"
+            sed -i 's|distrobox_path="$(dirname "$(readlink -f "$0")")"|distrobox_path="/run/current-system/sw/bin"|g' "$file"
+          done
+        '';
+      }))
+      boxbuddy
+      host-spawn
+      addwater
+      starship
+      git
+      lshw
+      appimage-run
+      pciutils
+      openrazer-daemon
+      polychromatic
+      niv
+      sbctl
+      disfetch
+      wayland-utils
+      # apps
+      vscode
+      mission-center
+      protonplus
+      heroic
+      protontricks
+      vintagestory
+      # OBS setup
+      obs-studio
+      obs-studio-plugins.obs-pipewire-audio-capture
+      obs-studio-plugins.obs-move-transition
+      obs-studio-plugins.obs-scene-as-transition
       #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
       #  wget
-    ];
-	  plasma6.excludePackages = [
+    ] ++ ( with unstable; [ faugus-launcher ] );
+    plasma6.excludePackages = [
 	    kdePackages.discover
+	    kdePackages.elisa
 	  ];
-	  # environment variable fixes
+	  # environment variable fixes & tweaks
     sessionVariables = {
       MESA_SHADER_CACHE_MAX_SIZE = "12G";
       AMD_VULKAN_ICD = "RADV";
+      KWIN_COMPOSE = "O2ES";
     };
-  }; 
+  };
 
   fonts.packages = with pkgs; [
 	  noto-fonts
@@ -341,12 +365,12 @@ in
   ];
 
   virtualisation = {
-        containers.enable = true;
-        podman = {
-                enable = true;
-                dockerCompat = true;
-                defaultNetwork.settings.dns_enabled = true; # Required for cont>
-        };
+    containers.enable = true;
+    podman = {
+      enable = true;
+      dockerCompat = true;
+      defaultNetwork.settings.dns_enabled = true; 
+    };
   };
 
   # nix management automations
@@ -357,7 +381,7 @@ in
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 14d";
+    options = "--delete-older-than 5d";
   };
   system.autoUpgrade = {
     enable = true;
@@ -381,10 +405,10 @@ in
   systemd.timers.nixos-flake-update = {
     description = "Daily NixOS flake update timer";
     wantedBy = [ "timers.target" ];
-    
+
     timerConfig = {
       OnCalendar = "daily";
-      OnBootSec = "15min"; 
+      OnBootSec = "15min";
       Persistent = true;
       RandomizedDelaySec = "1h";
     };
@@ -415,6 +439,6 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.05"; # Did you read the comment?
+  system.stateVersion = "25.11"; # Did you read the comment?
 
 }
