@@ -127,7 +127,6 @@
       packages = [
         "com.chatterino.chatterino"
         "com.discordapp.Discord"
-        "com.github.rafostar.Clapper"
         "com.protonvpn.www"
         "fr.handbrake.ghb"
         "io.github.thetumultuousunicornofdarkness.cpu-x"
@@ -328,6 +327,8 @@
       disfetch
       wayland-utils
       # apps
+      clapper
+      clapper-enhancers
       vscode
       mission-center
       protonplus
