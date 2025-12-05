@@ -67,18 +67,25 @@
   # Configure console keymap
   console.keyMap = "us-acentos";
   security.rtkit.enable = true;
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
+
   services = {
-    xserver.enable = true;
     # Enable the KDE Plasma Desktop Environment.
-    displayManager = {
-      sddm = {
-        enable = true;
-        wayland.enable = true;
-      };
-    };
-    desktopManager.plasma6.enable = true;
+    # displayManager = {
+      # sddm = {
+        # enable = true;
+        # wayland.enable = true;
+      # };
+    # };
+    # desktopManager.plasma6.enable = true;
+
+    # enable Cosmic desktop
+    # displayManager.cosmic-greeter.enable = true;
+    # desktopManager.cosmic.enable = true;
+
+    # enable gnome desktop
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
+    gnome.games.enable = false;
 
     # Configure keymap in X11
     xserver.xkb = {
@@ -125,6 +132,7 @@
     flatpak = {
       enable = true;
       packages = [
+	"com.mattjakeman.ExtensionManager"
         "com.chatterino.chatterino"
         "com.discordapp.Discord"
         "com.protonvpn.www"
@@ -229,10 +237,6 @@
         count = 65536;
       }
     ];
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
   };
 
   programs = {
@@ -247,15 +251,27 @@
   	  remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   	  dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
     };
+
+    # gamescope setup
+    gamescope = {
+	  enable = true;
+	  package = pkgs.gamescope_git;
+	  capSysNice = false;
+    };
   };
 
-  xdg.portal = with pkgs; {
-    enable = true;
-    extraPortals = [ xdg-desktop-portal-gtk ];
-  };
+  # xdg.portal = with pkgs; {
+    # enable = true;
+    # extraPortals = [ xdg-desktop-portal-gtk ];
+  # };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  # cosmic from unstable
+  # nixpkgs.config.packageOverrides = pkgs: {
+  	# cosmic = unstable.cosmic;
+	# cosmic-greeter = unstable.cosmic-greeter;
+  # };  
 
   # additional hardware
   hardware = {
@@ -295,15 +311,14 @@
   # $ nix search wget
   environment = with pkgs; {
     systemPackages = [
-      # kde stuff
-      kdePackages.partitionmanager
-      kdePackages.kcalc
+      # gnome stuff
+      refine
+      vanilla-dmz
       tela-icon-theme
       ffmpegthumbnailer
       # utilities
       podman-compose
       distrobox
-      # fix distrobox missing commands after gc/update
       (distrobox.overrideAttrs (oldAttrs: {
         postInstall = (oldAttrs.postInstall or "") + ''
           for file in $out/bin/*; do
@@ -331,6 +346,7 @@
       clapper-enhancers
       vscode
       mission-center
+      typora
       protonplus
       heroic
       protontricks
@@ -344,19 +360,22 @@
       #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
       #  wget
     ] ++ ( with unstable; [ faugus-launcher ] );
-    plasma6.excludePackages = [
-	    kdePackages.discover
-	    kdePackages.elisa
-	  ];
-	  # environment variable fixes & tweaks
+    # plasma6.excludePackages = [
+	    # kdePackages.discover
+	    # kdePackages.elisa
+    # ];
+    gnome.excludePackages = with pkgs; [ totem epiphany gnome-software geary gnome-music gnome-tour gnome-user-docs ];
+    # environment variable fixes
     sessionVariables = {
       MESA_SHADER_CACHE_MAX_SIZE = "12G";
       AMD_VULKAN_ICD = "RADV";
-      KWIN_COMPOSE = "O2ES";
+      # KWIN_COMPOSE = "O2ES"; # for plasma
+      GSK_RENDERER = "ngl"; # for gnome
     };
   };
 
   fonts.packages = with pkgs; [
+	  nerd-fonts.adwaita-mono
 	  noto-fonts
 	  noto-fonts-cjk-sans
 	  noto-fonts-color-emoji
@@ -370,7 +389,7 @@
     podman = {
       enable = true;
       dockerCompat = true;
-      defaultNetwork.settings.dns_enabled = true; 
+      defaultNetwork.settings.dns_enabled = true; # Required for cont>
     };
   };
 
