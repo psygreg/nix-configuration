@@ -33,7 +33,6 @@
       "net.core.netdev_max_backlog" = 4096;
       "fs.file-max" = 2097152;
       "net.ipv4.tcp_congestion_control" = "bbr";
-      "vm.min_free_kbytes" = 0; # Will be overridden by systemd service
     };
   };
 
@@ -95,7 +94,10 @@
     };
 
     # Enable CUPS to print documents.
-    printing.enable = true;
+    printing = { 
+      enable = true;
+      drivers = with pkgs; [ cups-brother-hl1210w ];
+    };
 
     # Enable sound with pipewire.
     pulseaudio.enable = false;
@@ -270,7 +272,10 @@
   # };
 
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs = { 
+    config.allowUnfree = true;
+  }; 
+
   # cosmic from unstable
   # nixpkgs.config.packageOverrides = pkgs: {
   	# cosmic = unstable.cosmic;
@@ -349,6 +354,8 @@
       clapper
       clapper-enhancers
       vscode
+      gimp
+      kdePackages.kdenlive
       mission-center
       typora
       protonplus
@@ -373,8 +380,8 @@
     sessionVariables = {
       MESA_SHADER_CACHE_MAX_SIZE = "12G";
       AMD_VULKAN_ICD = "RADV";
-      # KWIN_COMPOSE = "O2ES"; # for plasma
-      GSK_RENDERER = "ngl"; # for gnome
+      # KWIN_COMPOSE = "O2ES";
+      GSK_RENDERER = "ngl";
     };
   };
 
