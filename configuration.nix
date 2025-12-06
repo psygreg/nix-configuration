@@ -33,6 +33,7 @@
       "net.core.netdev_max_backlog" = 4096;
       "fs.file-max" = 2097152;
       "net.ipv4.tcp_congestion_control" = "bbr";
+      "vm.min_free_kbytes" = 0; # Will be overridden by systemd service
     };
   };
 
@@ -132,7 +133,7 @@
     flatpak = {
       enable = true;
       packages = [
-	"com.mattjakeman.ExtensionManager"
+	      "com.mattjakeman.ExtensionManager"
         "com.chatterino.chatterino"
         "com.discordapp.Discord"
         "com.protonvpn.www"
@@ -204,17 +205,20 @@
   # systemd service to set vm.min_free_kbytes dynamically as 1% of total memory size
   systemd.services.set-min-free-mem = {
     description = "Set vm.min_free_kbytes dynamically";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-      ExecStart= [
-        ''
-        /bin/sh -c "sysctl -w vm.min_free_kbytes=$(awk '/MemTotal/ {printf \"%.0f\", $2 * 0.01}' /proc/meminfo)";
-        ''
-      ];
-    };
     wantedBy = [ "multi-user.target" ];
     after = [ "local-fs.target" ];
+    serviceConfig = {
+      User = "root";
+      RemainAfterExit = true;
+    };
+    script = ''
+      TOTAL_MEM=$(${pkgs.gawk}/bin/awk '/MemTotal/ {printf "%.0f", $2 * 0.01}' /proc/meminfo)
+      if [ -z "$TOTAL_MEM" ] || [ "$TOTAL_MEM" -eq 0 ]; then
+        echo "Failed to calculate memory size" >&2
+        exit 1
+      fi
+      ${pkgs.sysctl}/bin/sysctl -w vm.min_free_kbytes=$TOTAL_MEM
+    '';
   };
 
   zramSwap.enable = true;
@@ -254,9 +258,9 @@
 
     # gamescope setup
     gamescope = {
-	  enable = true;
-	  package = pkgs.gamescope_git;
-	  capSysNice = false;
+	    enable = true;
+	    package = pkgs.gamescope_git;
+	    capSysNice = false;
     };
   };
 
