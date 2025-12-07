@@ -81,7 +81,7 @@
     # enable Cosmic desktop
     # displayManager.cosmic-greeter.enable = true;
     # desktopManager.cosmic.enable = true;
-
+    
     # enable gnome desktop
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
@@ -148,6 +148,7 @@
         "org.audacityteam.Audacity"
         "com.dec05eba.gpu_screen_recorder"
         "org.gnome.Logs"
+	      "org.kde.kdenlive"
       ];
       update.auto = {
         enable = true;
@@ -190,6 +191,24 @@
     		  ATTR{queue/scheduler}="none"
 	    '';
     };
+    
+    # preload settings - aggressive setup for SSDs and 16GB+ RAM
+    preload-ng = {
+      enable = true;
+      settings = {
+        cycle = 15;
+        memTotal = -7;
+        memFree = 50;
+        memCached = 10;
+        memBuffers = 30; 
+        minSize = 1000000; 
+        processes = 60;
+        sortStrategy = 0;
+        autoSave = 1800;
+        mapPrefix = "/nix/store/;/run/current-system/;!/";
+        exePrefix = "/nix/store/;/run/current-system/;!/";
+      };
+    };
 
     # Enable touchpad support (enabled default in most desktopManager).
     # services.xserver.libinput.enable = true;
@@ -224,6 +243,12 @@
   };
 
   zramSwap.enable = true;
+  
+  qt = {
+    enable = true;
+    platformTheme = "gnome";
+    style = "adwaita-dark";
+  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.psygreg = {
@@ -260,9 +285,9 @@
 
     # gamescope setup
     gamescope = {
-	    enable = true;
-	    package = pkgs.gamescope_git;
-	    capSysNice = false;
+	  enable = true;
+	  package = pkgs.gamescope_git;
+	  capSysNice = false;
     };
   };
 
@@ -285,6 +310,7 @@
   # additional hardware
   hardware = {
     enableAllFirmware = true;
+    firmware = [ pkgs.linux-firmware ];
 
     graphics = {
       enable = true;
@@ -292,8 +318,6 @@
     };
     # enable ROCM through opencl
     amdgpu.opencl.enable = true;
-
-    firmware = [ pkgs.linux-firmware ];
 
     openrazer.enable = true;
   };
@@ -306,10 +330,6 @@
         rocblas
         hipblas
         clr
-	      rocm-runtime
-	      rocm-device-libs
-	      rocminfo
-	      rocm-smi
       ];
     };
   in [
@@ -346,7 +366,6 @@
       pciutils
       openrazer-daemon
       polychromatic
-      niv
       sbctl
       disfetch
       wayland-utils
@@ -355,7 +374,6 @@
       clapper-enhancers
       vscode
       gimp
-      kdePackages.kdenlive
       mission-center
       typora
       protonplus
@@ -381,7 +399,7 @@
       MESA_SHADER_CACHE_MAX_SIZE = "12G";
       AMD_VULKAN_ICD = "RADV";
       # KWIN_COMPOSE = "O2ES";
-      GSK_RENDERER = "ngl";
+      GSK_RENDERER = "gl";
     };
   };
 
