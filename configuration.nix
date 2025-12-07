@@ -197,10 +197,10 @@
       enable = true;
       settings = {
         cycle = 15;
-        memTotal = -7;
-        memFree = 50;
+        memTotal = -5;
+        memFree = 70;
         memCached = 10;
-        memBuffers = 30; 
+        memBuffers = 50; 
         minSize = 1000000; 
         processes = 60;
         sortStrategy = 0;

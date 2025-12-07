@@ -12,9 +12,10 @@
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     affinity-nix.url = "github:mrshmllow/affinity-nix";
+    preload-ng.url = "github:miguel-b-p/preload-ng";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, chaotic, nix-flatpak, affinity-nix, lanzaboote } @ inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, chaotic, nix-flatpak, affinity-nix, lanzaboote, preload-ng } @ inputs:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -37,6 +38,8 @@
             chaotic.nixosModules.default
             nix-flatpak.nixosModules.nix-flatpak
             lanzaboote.nixosModules.lanzaboote
+	          preload-ng.nixosModules.default 
+	          { services.preload-ng.enable = true; }
             { environment.systemPackages = [affinity-nix.packages.x86_64-linux.v3]; }
           ];
         };
