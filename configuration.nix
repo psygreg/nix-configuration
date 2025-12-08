@@ -20,11 +20,12 @@
       pkiBundle = "/var/lib/sbctl";
     };
 
-    kernelPackages = pkgs.linuxPackages_cachyos-gcc;
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "tcp_bbr" ];
     kernelParams = [
       "quiet"
       "splash"
+      "transparent_hugepage=always"
       "preempt=full"
     ];
     kernel.sysctl = {
@@ -144,11 +145,8 @@
         "me.proton.Mail"
         "org.prismlauncher.PrismLauncher"
         "org.upscayl.Upscayl"
-        "org.chromium.Chromium"
         "org.audacityteam.Audacity"
-        "com.dec05eba.gpu_screen_recorder"
         "org.gnome.Logs"
-	      "org.kde.kdenlive"
       ];
       update.auto = {
         enable = true;
@@ -243,12 +241,6 @@
   };
 
   zramSwap.enable = true;
-  
-  qt = {
-    enable = true;
-    platformTheme = "gnome";
-    style = "adwaita-dark";
-  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.psygreg = {
@@ -285,9 +277,8 @@
 
     # gamescope setup
     gamescope = {
-	  enable = true;
-	  package = pkgs.gamescope_git;
-	  capSysNice = false;
+	    enable = true;
+	    capSysNice = false;
     };
   };
 
@@ -299,6 +290,26 @@
   # Allow unfree packages
   nixpkgs = { 
     config.allowUnfree = true;
+    overlays = [
+      (final: _prev: {
+        resolve2023 = import (builtins.fetchTarball {
+          url = "https://github.com/NixOS/nixpkgs/archive/0d70460758949966e91d9ecb823b821f963cefbb.tar.gz";
+          sha256 = "sha256:0arg4dakkqvhc814jq1vjrbw2apxzrq7xvw2vsn75l299d0zy43y";
+        }) {
+          inherit (final) system;
+          config.allowUnfree = true;
+        };
+        gamescope = _prev.gamescope.overrideAttrs (oldAttrs: {
+          patches = (oldAttrs.patches or [ ]) ++ [
+            # Fornece o caminho para o seu novo arquivo de patch
+            # Esse caminho é relativo à localização DESTE arquivo overlay.
+            # Veja este comentário que referencia o patch:
+            # https://github.com/ValveSoftware/gamescope/issues/1934#issuecomment-3225349079
+            ./1867.patch
+          ];
+    	  });
+      })
+    ];
   }; 
 
   # cosmic from unstable
@@ -315,26 +326,15 @@
     graphics = {
       enable = true;
       enable32Bit = true;
+      extraPackages = with pkgs; [
+      	intel-compute-runtime
+      	intel-media-driver
+      	vpl-gpu-rt
+      ];
     };
-    # enable ROCM through opencl
-    amdgpu.opencl.enable = true;
 
     openrazer.enable = true;
   };
-
-  systemd.tmpfiles.rules =
-  let
-    rocmEnv = pkgs.symlinkJoin {
-      name = "rocm-combined";
-      paths = with pkgs.rocmPackages; [
-        rocblas
-        hipblas
-        clr
-      ];
-    };
-  in [
-    "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
-  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -346,6 +346,7 @@
       tela-icon-theme
       ffmpegthumbnailer
       # utilities
+      clinfo
       podman-compose
       distrobox
       (distrobox.overrideAttrs (oldAttrs: {
@@ -397,7 +398,7 @@
     # environment variable fixes
     sessionVariables = {
       MESA_SHADER_CACHE_MAX_SIZE = "12G";
-      AMD_VULKAN_ICD = "RADV";
+      # AMD_VULKAN_ICD = "RADV";
       # KWIN_COMPOSE = "O2ES";
       GSK_RENDERER = "gl";
     };
