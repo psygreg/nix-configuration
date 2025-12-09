@@ -4,7 +4,7 @@
 # ubuntu image: quay.io/toolbx/ubuntu-toolbox
 distrobox enter ubuntu -- bash -c "
     sudo apt update && sudo apt upgrade -y \
-    sudo apt install -y devscripts dput curl build-essential whiptail libdw-dev gcc libncurses-dev curl gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf make rustc bc rsync python-is-python3 perl gettext cpio pahole debhelper dwarves zstd libgirepository-2.0-dev python3-dev libcairo-dev cmake pkg-config meson ninja-build gir1.2-vte-2.91 python3-gi gobject-introspection gir1.2-gtk-3.0 \
+    sudo apt install -y devscripts dput curl build-essential whiptail libdw-dev gcc libncurses-dev curl gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf make rustc bc rsync python-is-python3 perl gettext cpio pahole debhelper dwarves zstd \
     exit 0"
 # fedora image: quay.io/fedora/fedora-toolbox
 distrobox enter fedora -- bash -c "
